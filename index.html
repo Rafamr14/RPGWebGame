@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG Web Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="game-container">
+    <!-- Login/Register Screen -->
+    <div id="auth-screen" class="screen">
+        <h1>Bienvenido al Juego</h1>
+        <div id="login-form">
+            <h2>Iniciar Sesión</h2>
+            <input type="text" id="login-username" placeholder="Usuario">
+            <input type="password" id="login-password" placeholder="Contraseña">
+            <button id="login-button">Entrar</button>
+        </div>
+        <div id="register-form">
+            <h2>Registrarse</h2>
+            <input type="text" id="register-username" placeholder="Usuario">
+            <input type="password" id="register-password" placeholder="Contraseña">
+            <button id="register-button">Crear Cuenta</button>
+        </div>
+    </div>
+
+    <!-- Main Game Screen -->
+    <div id="game-screen" class="screen hidden">
+        <!-- Header with player info -->
+        <div id="player-info">
+            <div id="account-info">
+                <span id="player-name"></span>
+                <span id="account-level">Nivel: 1</span>
+                <span id="stamina">Energía: 100/100</span>
+                <span id="player-gold">Oro: 0</span>
+            </div>
+            <button id="logout-button">Salir</button>
+        </div>
+
+        <!-- Navigation Menu -->
+        <div id="nav-menu">
+            <button class="nav-button" data-screen="characters-screen">Personajes</button>
+            <button class="nav-button" data-screen="inventory-screen">Inventario</button>
+            <button class="nav-button" data-screen="exploration-screen">Explorar</button>
+            <button class="nav-button" data-screen="market-screen">Mercado</button>
+            <button class="nav-button" data-screen="shop-screen">Tienda</button>
+        </div>
+
+        <!-- Characters Screen -->
+        <div id="characters-screen" class="game-area hidden">
+            <h2>Tus Personajes</h2>
+            <div id="character-list"></div>
+            <div id="character-details" class="hidden">
+                <h3 id="character-name"></h3>
+                <div id="character-stats"></div>
+                <div id="character-equipment">
+                    <h4>Equipamiento</h4>
+                    <div id="equipment-slots"></div>
+                </div>
+                <button id="level-up-button">Subir de Nivel</button>
+            </div>
+        </div>
+
+        <!-- Inventory Screen -->
+        <div id="inventory-screen" class="game-area hidden">
+            <h2>Inventario</h2>
+            <div id="inventory-container"></div>
+            <div id="item-details" class="hidden">
+                <h3 id="item-name"></h3>
+                <p id="item-description"></p>
+                <div id="item-stats"></div>
+                <div id="item-actions">
+                    <button id="use-item" class="hidden">Usar</button>
+                    <button id="equip-item" class="hidden">Equipar</button>
+                    <button id="sell-item">Vender</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exploration Screen -->
+        <div id="exploration-screen" class="game-area hidden">
+            <h2>Exploración</h2>
+            <div id="zone-selection">
+                <h3>Selecciona una Zona</h3>
+                <div id="zone-list"></div>
+            </div>
+            <div id="character-selection" class="hidden">
+                <h3>Selecciona un Personaje</h3>
+                <div id="exploration-character-list"></div>
+                <button id="start-exploration">Comenzar Exploración</button>
+            </div>
+            <div id="exploration-result" class="hidden">
+                <h3>Resultados de la Exploración</h3>
+                <div id="combat-log"></div>
+                <div id="rewards"></div>
+                <button id="continue-exploration">Continuar</button>
+            </div>
+        </div>
+
+        <!-- Market Screen -->
+        <div id="market-screen" class="game-area hidden">
+            <h2>Mercado de Jugadores</h2>
+            <div id="market-tabs">
+                <button class="market-tab active" data-tab="browse">Explorar</button>
+                <button class="market-tab" data-tab="my-listings">Mis Ventas</button>
+            </div>
+            <div id="market-search">
+                <input type="text" id="market-search-input" placeholder="Buscar items...">
+                <select id="market-category">
+                    <option value="all">Todas las categorías</option>
+                    <option value="weapon">Armas</option>
+                    <option value="armor">Armaduras</option>
+                    <option value="consumable">Consumibles</option>
+                </select>
+                <button id="search-market">Buscar</button>
+            </div>
+            <div id="market-listings"></div>
+            <div id="market-item-details" class="hidden">
+                <h3 id="market-item-name"></h3>
+                <p id="market-item-description"></p>
+                <div id="market-item-stats"></div>
+                <p id="market-item-price"></p>
+                <button id="buy-market-item">Comprar</button>
+            </div>
+            <div id="sell-interface" class="hidden">
+                <h3>Vender Item</h3>
+                <div id="sell-inventory"></div>
+                <div id="sell-form" class="hidden">
+                    <p id="sell-item-name"></p>
+                    <input type="number" id="sell-price" placeholder="Precio">
+                    <button id="confirm-sell">Poner a la Venta</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop Screen -->
+        <div id="shop-screen" class="game-area hidden">
+            <h2>Tienda</h2>
+            <div id="shop-tabs">
+                <button class="shop-tab active" data-tab="characters">Personajes</button>
+                <button class="shop-tab" data-tab="items">Items</button>
+            </div>
+            <div id="shop-characters" class="shop-section">
+                <div id="shop-character-list"></div>
+            </div>
+            <div id="shop-items" class="shop-section hidden">
+                <div id="shop-item-list"></div>
+            </div>
+            <div id="shop-item-details" class="hidden">
+                <h3 id="shop-item-name"></h3>
+                <p id="shop-item-description"></p>
+                <div id="shop-item-stats"></div>
+                <p id="shop-item-price"></p>
+                <button id="buy-shop-item">Comprar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales -->
+<div id="confirm-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Confirmar acción</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p id="confirm-message"></p>
+        </div>
+        <div class="modal-footer">
+            <button id="confirm-button" class="primary-button">Confirmar</button>
+            <button id="cancel-button">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<div id="error-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Error</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p id="error-message"></p>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-close">Aceptar</button>
+        </div>
+    </div>
+</div>
+
+<div id="success-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Éxito</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p id="success-message"></p>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-close">Aceptar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="data.js"></script>
+<script src="auth.js"></script>
+<script src="character.js"></script>
+<script src="items.js"></script>
+<script src="inventory.js"></script>
+<script src="combat.js"></script>
+<script src="exploration.js"></script>
+<script src="market.js"></script>
+<script src="ui.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

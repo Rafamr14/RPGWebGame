@@ -1,0 +1,416 @@
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-color: #121212;
+    color: #f0f0f0;
+}
+
+.hidden {
+    display: none !important;
+}
+
+button {
+    background-color: #4a6fa5;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #3a5a8c;
+}
+
+button:disabled {
+    background-color: #555;
+    color: #999;
+    cursor: not-allowed;
+}
+
+.primary-button {
+    background-color: #2a7d2a;
+}
+
+.primary-button:hover {
+    background-color: #1e691e;
+}
+
+input, select {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    background-color: #333;
+    color: #f0f0f0;
+    margin-bottom: 10px;
+}
+
+h1, h2, h3, h4 {
+    margin-bottom: 15px;
+    color: #7a9cc6;
+}
+
+/* Game Container */
+#game-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+/* Auth Screen */
+#auth-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+}
+
+#login-form, #register-form {
+    background-color: #232323;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Main Game Screen */
+#player-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #232323;
+    padding: 10px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+#account-info {
+    display: flex;
+    gap: 20px;
+}
+
+#player-gold {
+    color: #ffd700; /* Color dorado para el oro */
+    font-weight: bold;
+}
+
+/* Navigation Menu */
+#nav-menu {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.nav-button {
+    flex: 1;
+}
+
+/* Game Areas */
+.game-area {
+    background-color: #232323;
+    padding: 20px;
+    border-radius: 8px;
+    min-height: 400px;
+}
+
+/* Character List and Details */
+#character-list, #exploration-character-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.character-card {
+    background-color: #2c2c2c;
+    border-radius: 6px;
+    padding: 15px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.character-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.character-card.selected {
+    border: 2px solid #4a6fa5;
+}
+
+#character-details, #item-details, #market-item-details, #shop-item-details {
+    background-color: #2c2c2c;
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 15px;
+}
+
+#character-stats, #item-stats, #market-item-stats, #shop-item-stats {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #333;
+    border-radius: 4px;
+}
+
+#equipment-slots {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.equipment-slot {
+    background-color: #333;
+    padding: 10px;
+    border-radius: 4px;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Inventory */
+#inventory-container, #sell-inventory {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.inventory-item {
+    background-color: #333;
+    padding: 10px;
+    border-radius: 4px;
+    min-height: 80px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.inventory-item:hover {
+    background-color: #444;
+}
+
+.inventory-item.selected {
+    border: 2px solid #4a6fa5;
+}
+
+#item-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* Exploration */
+#zone-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.zone-card {
+    background-color: #2c2c2c;
+    border-radius: 6px;
+    padding: 15px;
+    cursor: pointer;
+}
+
+.zone-card:hover {
+    background-color: #3c3c3c;
+}
+
+#combat-log {
+    background-color: #333;
+    padding: 15px;
+    border-radius: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
+#rewards {
+    background-color: #333;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+/* Market */
+#market-tabs, #shop-tabs {
+    display: flex;
+    margin-bottom: 15px;
+}
+
+.market-tab, .shop-tab {
+    background-color: #333;
+    border-radius: 4px 4px 0 0;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.market-tab.active, .shop-tab.active {
+    background-color: #4a6fa5;
+}
+
+#market-search {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+#market-search-input {
+    flex: 1;
+}
+
+#market-listings {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.market-item {
+    background-color: #2c2c2c;
+    border-radius: 6px;
+    padding: 15px;
+    cursor: pointer;
+}
+
+.market-item:hover {
+    background-color: #3c3c3c;
+}
+
+/* Shop */
+#shop-character-list, #shop-item-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.shop-character, .shop-item {
+    background-color: #2c2c2c;
+    border-radius: 6px;
+    padding: 15px;
+    cursor: pointer;
+    position: relative;
+}
+
+.shop-character:hover, .shop-item:hover {
+    background-color: #3c3c3c;
+}
+
+.no-gold {
+    color: #ff6464;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.owned-label {
+    background-color: #2a7d2a;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-align: center;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+/* Modales */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #232323;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.modal-header {
+    background-color: #2c2c2c;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #444;
+}
+
+.modal-header h3 {
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    color: #fff;
+    background: none;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #444;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+#error-modal .modal-header {
+    background-color: #8c2e2e;
+}
+
+#success-modal .modal-header {
+    background-color: #2e8c2e;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    #nav-menu {
+        flex-direction: column;
+    }
+
+    #market-search {
+        flex-direction: column;
+    }
+
+    #character-list, #exploration-character-list, #zone-list, #market-listings, #shop-character-list, #shop-item-list {
+        grid-template-columns: 1fr;
+    }
+}
