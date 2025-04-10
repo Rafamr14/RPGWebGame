@@ -1,125 +1,3 @@
-// Exploration.js - Lógica de exploración de zonas
-
-// Constantes de zonas
-const ZONES = [
-    {
-        id: 'forest',
-        name: 'Bosque Encantado',
-        description: 'Un bosque místico lleno de criaturas mágicas y vegetación exuberante.',
-        level: 1,
-        stamina: 10,
-        enemies: 3,
-        difficulty: 1.0
-    },
-    {
-        id: 'cave',
-        name: 'Caverna Oscura',
-        description: 'Una red de cuevas con poca luz donde habitan criaturas adaptadas a la oscuridad.',
-        level: 3,
-        stamina: 15,
-        enemies: 4,
-        difficulty: 1.2
-    },
-    {
-        id: 'mountain',
-        name: 'Montaña Helada',
-        description: 'Picos nevados donde el frío extremo es tan peligroso como las criaturas que lo habitan.',
-        level: 5,
-        stamina: 20,
-        enemies: 5,
-        difficulty: 1.5
-    },
-    {
-        id: 'desert',
-        name: 'Desierto Ardiente',
-        description: 'Vastas extensiones de arena y calor abrasador con oasis escondidos.',
-        level: 7,
-        stamina: 25,
-        enemies: 6,
-        difficulty: 1.7
-    },
-    {
-        id: 'castle',
-        name: 'Castillo Abandonado',
-        description: 'Una antigua fortaleza ahora habitada por espíritus y criaturas oscuras.',
-        level: 10,
-        stamina: 30,
-        enemies: 7,
-        difficulty: 2.0
-    }
-];
-
-// Variables para la exploración actual
-let selectedCharacterId = null;
-let selectedZoneId = null;
-let currentExploration = {
-    character: null,
-    zone: null,
-    combatLog: [],
-    rewards: {
-        experience: 0,
-        gold: 0,
-        items: []
-    },
-    enemiesDefeated: 0,
-    totalEnemies: 0
-};
-
-// Inicialización del módulo de exploración
-function initExploration() {
-    console.log("Inicializando módulo de exploración");
-
-    // Event listener para selección de zona
-    document.getElementById('zone-list').addEventListener('click', function(e) {
-        const zoneCard = e.target.closest('.zone-card');
-        if (zoneCard) {
-            // Deseleccionar todas las zonas
-            document.querySelectorAll('.zone-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-
-            // Seleccionar la zona clicada
-            zoneCard.classList.add('selected');
-            selectedZoneId = zoneCard.getAttribute('data-id');
-            console.log("Zona seleccionada:", selectedZoneId);
-
-            // Activar botón si hay personaje seleccionado
-            checkExplorationReadiness();
-        }
-    });
-
-    // Event listener para selección de personaje en exploración
-    document.getElementById('exploration-character-list').addEventListener('click', function(e) {
-        const characterCard = e.target.closest('.character-card');
-        if (characterCard) {
-            // Deseleccionar todos los personajes
-            document.querySelectorAll('#exploration-character-list .character-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-
-            // Seleccionar el personaje clicado
-            characterCard.classList.add('selected');
-            selectedCharacterId = characterCard.getAttribute('data-id');
-            console.log("Personaje seleccionado:", selectedCharacterId);
-
-            // Activar botón si hay zona seleccionada
-            checkExplorationReadiness();
-        }
-    });
-
-    // Event listener para iniciar exploración
-    document.getElementById('start-exploration').addEventListener('click', startExploration);
-
-    // Event listener para finalizar exploración
-    document.getElementById('finish-exploration').addEventListener('click', finishExploration);
-
-    // Cargar zonas cuando se muestra la pantalla
-    document.getElementById('exploration-screen').addEventListener('screenShown', function() {
-        loadZones();
-        updateExplorationCharacterList();
-    });
-}
-
 // Función para verificar si se puede iniciar la exploración
 function checkExplorationReadiness() {
     const startButton = document.getElementById('start-exploration');
@@ -151,8 +29,10 @@ function loadZones() {
 
         zoneCard.innerHTML = `
             <h4>${zone.name}</h4>
+            <p class="zone-description">${zone.description}</p>
             <p>Nivel: ${zone.level}</p>
             <p>Energía: ${zone.stamina}</p>
+            <p>Enemigos: ${zone.enemies}</p>
         `;
 
         // Desactivar zonas de nivel demasiado alto
@@ -191,7 +71,7 @@ function updateExplorationCharacterList() {
 
     const playerData = getPlayerData();
     if (!playerData || !playerData.characters || playerData.characters.length === 0) {
-        explorationCharacterList.innerHTML = '<p>No tienes personajes disponibles para explorar.</p>';
+        explorationCharacterList.innerHTML = '<p class="empty-list-message">No tienes personajes disponibles para explorar.</p>';
         return;
     }
 
@@ -209,10 +89,21 @@ function updateExplorationCharacterList() {
             case 'HEALER': classColor = '#3498db'; break;
         }
 
+        // Calcular experiencia
+        const currentExp = character.experience;
+        const maxExp = character.level * 100;
+        const expPercentage = (currentExp / maxExp) * 100;
+
         characterCard.innerHTML = `
             <h4>${character.name}</h4>
             <p>Nivel: ${character.level}</p>
             <p>Salud: ${character.stats.health}</p>
+            <div class="character-xp-mini">
+                <div class="xp-bar-mini">
+                    <div class="xp-progress-mini" style="width: ${expPercentage}%"></div>
+                </div>
+                <span class="xp-text-mini">${currentExp}/${maxExp} XP</span>
+            </div>
         `;
 
         // Aplicar estilo especial para la clase
@@ -276,8 +167,12 @@ function startExploration() {
 
     // Mostrar resultados
     document.getElementById('exploration-result').classList.remove('hidden');
-    document.getElementById('combat-log').innerHTML = '<p>Explorando...</p>';
+    document.getElementById('combat-log').innerHTML = '<p>Preparando exploración...</p>';
     document.getElementById('rewards').innerHTML = '';
+
+    // Inicializar barra de progreso
+    document.getElementById('exploration-progress-value').textContent = `0/${zone.enemies}`;
+    document.getElementById('exploration-progress-fill').style.width = "0%";
 
     // Desactivar selección para evitar doble inicio
     document.getElementById('start-exploration').setAttribute('disabled', 'true');
@@ -305,6 +200,10 @@ function runAllCombats() {
             return;
         }
 
+        // Actualizar barra de progreso
+        document.getElementById('exploration-progress-value').textContent = `${index}/${currentExploration.zone.enemies}`;
+        document.getElementById('exploration-progress-fill').style.width = `${(index / currentExploration.zone.enemies) * 100}%`;
+
         // Generar enemigo
         const enemy = generateEnemy(
             currentExploration.zone.name,
@@ -322,7 +221,7 @@ function runAllCombats() {
                     .then(result => {
                         processCombatResult(result, index);
                         // Procesar el siguiente combate
-                        setTimeout(() => processCombat(index + 1), 300);
+                        setTimeout(() => processCombat(index + 1), 500);
                     });
                 return;
             } else {
@@ -337,15 +236,35 @@ function runAllCombats() {
         if (!(combatResult instanceof Promise)) {
             processCombatResult(combatResult, index);
             // Procesar el siguiente combate
-            setTimeout(() => processCombat(index + 1), 300);
+            setTimeout(() => processCombat(index + 1), 500);
         }
     }
 
     // Función para procesar el resultado de un combate
     function processCombatResult(result, index) {
-        // Añadir logs del combate
+        // Mostrar el combate en detalle usando un modal de batalla si es el primer encuentro
+        if (index === 0) {
+            showBattleModal(currentExploration.character, result);
+        }
+
+        // Añadir logs del combate con clases CSS para diferentes tipos de mensajes
         result.combatLog.forEach(log => {
-            allCombatLogs.push(`<p>${log}</p>`);
+            let cssClass = '';
+
+            // Determinar qué clase CSS aplicar según el contenido del mensaje
+            if (log.includes('ataca')) {
+                cssClass = 'combat-attack';
+            } else if (log.includes('causando')) {
+                cssClass = 'combat-damage';
+            } else if (log.includes('ha derrotado')) {
+                cssClass = 'combat-victory';
+            } else if (log.includes('ha sido derrotado')) {
+                cssClass = 'combat-defeat';
+            } else if (log.includes('gana')) {
+                cssClass = 'combat-reward';
+            }
+
+            allCombatLogs.push(`<p class="${cssClass}">${log}</p>`);
         });
 
         allCombatLogs.push('</div>');
@@ -374,6 +293,10 @@ function runAllCombats() {
 
     // Función para mostrar resultados finales
     function displayResults() {
+        // Actualizar la barra de progreso al 100%
+        document.getElementById('exploration-progress-value').textContent = `${currentExploration.enemiesDefeated}/${currentExploration.totalEnemies}`;
+        document.getElementById('exploration-progress-fill').style.width = `${(currentExploration.enemiesDefeated / currentExploration.totalEnemies) * 100}%`;
+
         // Mostrar resumen de recompensas
         rewards.innerHTML = `
             <div class="rewards-summary">
@@ -388,9 +311,28 @@ function runAllCombats() {
         // Si hay items, mostrarlos
         if (currentExploration.rewards.items && currentExploration.rewards.items.length > 0) {
             let itemsHtml = `<div class="rewards-items"><h4>Items obtenidos:</h4><div class="items-grid">`;
+
             currentExploration.rewards.items.forEach(item => {
-                itemsHtml += `<div class="item-card">${item.name}</div>`;
+                // Color según rareza si el item tiene rareza
+                let itemStyle = '';
+                if (item.rarity) {
+                    const rarityKey = Object.keys(ITEM_RARITIES).find(
+                        key => ITEM_RARITIES[key].name === item.rarity
+                    );
+                    if (rarityKey) {
+                        itemStyle = `border-color: ${ITEM_RARITIES[rarityKey].color}; border-width: 2px;`;
+                    }
+                }
+
+                itemsHtml += `
+                    <div class="item-card" style="${itemStyle}">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-type">${getItemTypeText(item.type)}</div>
+                        ${item.level ? `<div class="item-level">Nivel ${item.level}</div>` : ''}
+                    </div>
+                `;
             });
+
             itemsHtml += `</div></div>`;
             rewards.innerHTML += itemsHtml;
         }
@@ -423,6 +365,51 @@ function runAllCombats() {
 
     // Iniciar el primer combate
     processCombat(0);
+}
+
+// Función para mostrar el modal de batalla
+function showBattleModal(character, combatResult) {
+    // Obtener datos del combate
+    const enemy = combatResult.enemy || { name: "Enemigo", stats: { health: 100 } };
+    const victory = combatResult.victory;
+    const combatLog = combatResult.combatLog;
+
+    // Configurar el modal
+    document.getElementById('battle-player-name').textContent = character.name;
+    document.getElementById('battle-enemy-name').textContent = enemy.name;
+
+    // Configurar barras de vida
+    document.getElementById('player-health-value').textContent = `${combatResult.remainingHealth} / ${character.stats.health}`;
+    document.getElementById('player-health-fill').style.width = `${(combatResult.remainingHealth / character.stats.health) * 100}%`;
+
+    // Si el enemigo fue derrotado, su salud es 0
+    const enemyRemainingHealth = victory ? 0 : enemy.currentHealth || 0;
+    document.getElementById('enemy-health-value').textContent = `${enemyRemainingHealth} / ${enemy.stats.health}`;
+    document.getElementById('enemy-health-fill').style.width = `${(enemyRemainingHealth / enemy.stats.health) * 100}%`;
+
+    // Mostrar el log de combate
+    const battleLog = document.getElementById('battle-log');
+    battleLog.innerHTML = '';
+
+    combatLog.forEach(log => {
+        let cssClass = '';
+
+        // Determinar clase CSS según el contenido del mensaje
+        if (log.includes(character.name + ' ataca')) {
+            cssClass = 'player-attack';
+        } else if (log.includes(enemy.name + ' ataca')) {
+            cssClass = 'enemy-attack';
+        } else if (log.includes('ha derrotado')) {
+            cssClass = victory ? 'player-victory' : 'enemy-victory';
+        } else if (log.includes('gana')) {
+            cssClass = 'reward-message';
+        }
+
+        battleLog.innerHTML += `<p class="${cssClass}">${log}</p>`;
+    });
+
+    // Mostrar el modal
+    showModal('battle-modal');
 }
 
 // Función para finalizar la exploración
@@ -579,7 +566,8 @@ function simulateCombat(character, enemy) {
             gold: goldGained,
             items: items
         },
-        remainingHealth: characterHealth
+        remainingHealth: characterHealth,
+        enemy: enemy // Añadir el enemigo para el modal de batalla
     };
 }
 
@@ -644,4 +632,147 @@ function applyRewardsManual(characterId, rewards) {
     savePlayerData(playerData);
 
     return { success: true, levelUps: levelUps };
+}
+
+// Función para obtener el texto del tipo de item
+function getItemTypeText(type) {
+    switch(type) {
+        case 'weapon':
+            return 'Arma';
+        case 'armor':
+            return 'Armadura';
+        case 'consumable':
+            return 'Consumible';
+        case 'material':
+            return 'Material';
+        default:
+            return 'Item';
+    }
+}// Exploration.js - Lógica de exploración de zonas - Versión mejorada
+
+// Constantes de zonas
+const ZONES = [
+    {
+        id: 'forest',
+        name: 'Bosque Encantado',
+        description: 'Un bosque místico lleno de criaturas mágicas y vegetación exuberante.',
+        level: 1,
+        stamina: 10,
+        enemies: 3,
+        difficulty: 1.0,
+        background: 'forest-bg.jpg'
+    },
+    {
+        id: 'cave',
+        name: 'Caverna Oscura',
+        description: 'Una red de cuevas con poca luz donde habitan criaturas adaptadas a la oscuridad.',
+        level: 3,
+        stamina: 15,
+        enemies: 4,
+        difficulty: 1.2,
+        background: 'cave-bg.jpg'
+    },
+    {
+        id: 'mountain',
+        name: 'Montaña Helada',
+        description: 'Picos nevados donde el frío extremo es tan peligroso como las criaturas que lo habitan.',
+        level: 5,
+        stamina: 20,
+        enemies: 5,
+        difficulty: 1.5,
+        background: 'mountain-bg.jpg'
+    },
+    {
+        id: 'desert',
+        name: 'Desierto Ardiente',
+        description: 'Vastas extensiones de arena y calor abrasador con oasis escondidos.',
+        level: 7,
+        stamina: 25,
+        enemies: 6,
+        difficulty: 1.7,
+        background: 'desert-bg.jpg'
+    },
+    {
+        id: 'castle',
+        name: 'Castillo Abandonado',
+        description: 'Una antigua fortaleza ahora habitada por espíritus y criaturas oscuras.',
+        level: 10,
+        stamina: 30,
+        enemies: 7,
+        difficulty: 2.0,
+        background: 'castle-bg.jpg'
+    }
+];
+
+// Variables para la exploración actual
+let selectedCharacterId = null;
+let selectedZoneId = null;
+let currentExploration = {
+    character: null,
+    zone: null,
+    combatLog: [],
+    rewards: {
+        experience: 0,
+        gold: 0,
+        items: []
+    },
+    enemiesDefeated: 0,
+    totalEnemies: 0
+};
+
+// Inicialización del módulo de exploración
+function initExploration() {
+    console.log("Inicializando módulo de exploración...");
+
+    // Event listener para selección de zona
+    document.getElementById('zone-list').addEventListener('click', function(e) {
+        const zoneCard = e.target.closest('.zone-card');
+        if (zoneCard) {
+            // Deseleccionar todas las zonas
+            document.querySelectorAll('.zone-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            // Seleccionar la zona clicada
+            zoneCard.classList.add('selected');
+            selectedZoneId = zoneCard.getAttribute('data-id');
+            console.log("Zona seleccionada:", selectedZoneId);
+
+            // Activar botón si hay personaje seleccionado
+            checkExplorationReadiness();
+        }
+    });
+
+    // Event listener para selección de personaje en exploración
+    document.getElementById('exploration-character-list').addEventListener('click', function(e) {
+        const characterCard = e.target.closest('.character-card');
+        if (characterCard) {
+            // Deseleccionar todos los personajes
+            document.querySelectorAll('#exploration-character-list .character-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            // Seleccionar el personaje clicado
+            characterCard.classList.add('selected');
+            selectedCharacterId = characterCard.getAttribute('data-id');
+            console.log("Personaje seleccionado:", selectedCharacterId);
+
+            // Activar botón si hay zona seleccionada
+            checkExplorationReadiness();
+        }
+    });
+
+    // Event listener para iniciar exploración
+    document.getElementById('start-exploration').addEventListener('click', startExploration);
+
+    // Event listener para finalizar exploración
+    document.getElementById('finish-exploration').addEventListener('click', finishExploration);
+
+    // Cargar zonas cuando se muestra la pantalla
+    document.getElementById('exploration-screen').addEventListener('screenShown', function() {
+        loadZones();
+        updateExplorationCharacterList();
+    });
+
+    console.log("Módulo de exploración inicializado correctamente");
 }

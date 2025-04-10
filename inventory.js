@@ -1,7 +1,9 @@
-// Inventory.js - Sistema de inventario
+// Inventory.js - Sistema de inventario - Versión mejorada
 
 // Inicialización del módulo de inventario
 function initInventory() {
+    console.log("Inicializando módulo de inventario...");
+
     // Event listener para selección de items en el inventario
     document.getElementById('inventory-container').addEventListener('click', function(e) {
         const inventoryItem = e.target.closest('.inventory-item');
@@ -13,8 +15,38 @@ function initInventory() {
 
     // Event listeners para acciones de items
     document.getElementById('use-item').addEventListener('click', useSelectedItem);
-    document.getElementById('equip-item').addEventListener('click', equipSelectedItem);
-    document.getElementById('sell-item').addEventListener('click', sellSelectedItem);
+    document.getElementById('equip-item').addEventListener('click', showEquipItemModal);
+    document.getElementById('sell-item').addEventListener('click', showSellItemModal);
+    document.getElementById('gift-item').addEventListener('click', showGiftItemModal);
+
+    // Event listener para confirmar venta de item
+    document.getElementById('confirm-sell-item').addEventListener('click', sellSelectedItem);
+
+    // Event listener para confirmar regalo
+    document.getElementById('confirm-gift').addEventListener('click', giftSelectedItem);
+
+    // Event listeners para filtros de inventario
+    document.querySelectorAll('.inventory-category').forEach(button => {
+        button.addEventListener('click', function() {
+            // Quitar la clase active de todos los botones
+            document.querySelectorAll('.inventory-category').forEach(btn => btn.classList.remove('active'));
+
+            // Añadir la clase active al botón clicado
+            this.classList.add('active');
+
+            // Filtrar los items
+            const category = this.getAttribute('data-category');
+            filterInventoryItems(category);
+        });
+    });
+
+    // Event listener para búsqueda de items
+    document.getElementById('inventory-search').addEventListener('input', function() {
+        const searchTerm = this.value.trim().toLowerCase();
+        searchInventoryItems(searchTerm);
+    });
+
+    console.log("Módulo de inventario inicializado correctamente");
 }
 
 // Función para cargar el inventario del jugador
@@ -24,20 +56,48 @@ function loadInventory() {
 
 // Función para actualizar la visualización del inventario
 function refreshInventory() {
+    console.log("Actualizando visualización del inventario...");
     const inventoryContainer = document.getElementById('inventory-container');
     inventoryContainer.innerHTML = '';
 
     const playerData = getPlayerData();
     if (!playerData || !playerData.inventory || playerData.inventory.length === 0) {
-        inventoryContainer.innerHTML = '<p>Tu inventario está vacío.</p>';
+        inventoryContainer.innerHTML = '<p class="empty-list-message">Tu inventario está vacío.</p>';
         document.getElementById('item-details').classList.add('hidden');
         return;
     }
 
+    // Agrupar items similares para mostrar conteo
+    const groupedItems = {};
+
     playerData.inventory.forEach(item => {
+        // Usar el id base (sin el timestamp) para agrupar items idénticos
+        const baseId = item.id.split('_').slice(0, -1).join('_');
+
+        if (!groupedItems[baseId]) {
+            groupedItems[baseId] = {
+                item: item,
+                count: 1,
+                ids: [item.id]
+            };
+        } else {
+            groupedItems[baseId].count++;
+            groupedItems[baseId].ids.push(item.id);
+        }
+    });
+
+    // Mostrar los items agrupados
+    Object.values(groupedItems).forEach(groupedItem => {
+        const item = groupedItem.item;
+        const count = groupedItem.count;
+        const itemId = groupedItem.ids[0]; // Usar el primer ID para referencia
+
         const inventoryItemElement = document.createElement('div');
         inventoryItemElement.className = 'inventory-item';
-        inventoryItemElement.setAttribute('data-id', item.id);
+        inventoryItemElement.setAttribute('data-id', itemId);
+        inventoryItemElement.setAttribute('data-type', item.type);
+        inventoryItemElement.setAttribute('data-name', item.name.toLowerCase());
+        inventoryItemElement.setAttribute('data-level', item.level || 0);
 
         // Color según rareza si el item tiene rareza
         if (item.rarity) {
@@ -50,24 +110,63 @@ function refreshInventory() {
         }
 
         inventoryItemElement.innerHTML = `
-            <div>${item.name}</div>
+            <div class="item-name">${item.name}</div>
             <div class="item-type">${getItemTypeText(item.type)}</div>
+            ${count > 1 ? `<div class="item-count">${count}</div>` : ''}
         `;
 
         inventoryContainer.appendChild(inventoryItemElement);
+    });
+
+    console.log(`Inventario actualizado con ${Object.keys(groupedItems).length} tipos de items.`);
+}
+
+// Función para filtrar items del inventario
+function filterInventoryItems(category) {
+    console.log(`Filtrando items por categoría: ${category}`);
+
+    const inventoryItems = document.querySelectorAll('.inventory-item');
+
+    inventoryItems.forEach(item => {
+        if (category === 'all') {
+            item.style.display = '';
+        } else {
+            const itemType = item.getAttribute('data-type');
+            if (itemType === category) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        }
+    });
+}
+
+// Función para buscar items en el inventario
+function searchInventoryItems(searchTerm) {
+    console.log(`Buscando items: ${searchTerm}`);
+
+    const inventoryItems = document.querySelectorAll('.inventory-item');
+
+    inventoryItems.forEach(item => {
+        const itemName = item.getAttribute('data-name');
+        if (itemName.includes(searchTerm)) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
     });
 }
 
 // Función para obtener el texto del tipo de item
 function getItemTypeText(type) {
     switch(type) {
-        case ITEM_TYPES.WEAPON:
+        case 'weapon':
             return 'Arma';
-        case ITEM_TYPES.ARMOR:
+        case 'armor':
             return 'Armadura';
-        case ITEM_TYPES.CONSUMABLE:
+        case 'consumable':
             return 'Consumible';
-        case ITEM_TYPES.MATERIAL:
+        case 'material':
             return 'Material';
         default:
             return 'Item';
@@ -92,7 +191,7 @@ function selectInventoryItem(itemId) {
     itemDetails.classList.remove('hidden');
 
     document.getElementById('item-name').textContent = item.name;
-    document.getElementById('item-description').textContent = item.description;
+    document.getElementById('item-description').textContent = item.description || 'Sin descripción disponible.';
 
     // Mostrar estadísticas del item
     const itemStats = document.getElementById('item-stats');
@@ -123,13 +222,13 @@ function selectInventoryItem(itemId) {
         }
     }
 
-    itemStats.innerHTML = statsHtml;
+    itemStats.innerHTML = statsHtml || '<p>Sin estadísticas adicionales</p>';
 
     // Configurar botones de acción según tipo de item
     document.getElementById('use-item').classList.add('hidden');
     document.getElementById('equip-item').classList.add('hidden');
 
-    if (item.type === ITEM_TYPES.CONSUMABLE) {
+    if (item.type === 'consumable') {
         document.getElementById('use-item').classList.remove('hidden');
     }
 
@@ -157,61 +256,22 @@ function getStatName(stat) {
     }
 }
 
-// Función para usar el item seleccionado
-function useSelectedItem() {
+// Función para mostrar el modal de venta de item
+function showSellItemModal() {
     const selectedItemId = localStorage.getItem('rpg_selected_item');
     if (!selectedItemId) return;
 
     const playerData = getPlayerData();
     const item = playerData.inventory.find(i => i.id === selectedItemId);
 
-    if (!item || item.type !== ITEM_TYPES.CONSUMABLE) {
-        alert('Este item no es consumible.');
-        return;
-    }
+    if (!item) return;
 
-    // Determinar a qué personaje aplicar el efecto
-    const selectedCharacterId = localStorage.getItem('rpg_selected_character');
+    // Configurar el modal
+    document.getElementById('sell-item-name-confirm').textContent = item.name;
+    document.getElementById('sell-item-price').textContent = item.value || 50;
 
-    if (!selectedCharacterId || !playerData.characters.some(c => c.id === selectedCharacterId)) {
-        alert('Selecciona un personaje primero para usar este item.');
-        return;
-    }
-
-    // Usar el item
-    if (useConsumableItem(selectedItemId, selectedCharacterId)) {
-        refreshInventory();
-        // Ocultar detalles del item
-        document.getElementById('item-details').classList.add('hidden');
-    }
-}
-
-// Función para equipar el item seleccionado
-function equipSelectedItem() {
-    const selectedItemId = localStorage.getItem('rpg_selected_item');
-    if (!selectedItemId) return;
-
-    const playerData = getPlayerData();
-    const item = playerData.inventory.find(i => i.id === selectedItemId);
-
-    if (!item || !item.equipable) {
-        alert('Este item no es equipable.');
-        return;
-    }
-
-    // Determinar a qué personaje equipar el item
-    const selectedCharacterId = localStorage.getItem('rpg_selected_character');
-
-    if (!selectedCharacterId || !playerData.characters.some(c => c.id === selectedCharacterId)) {
-        alert('Selecciona un personaje primero para equipar este item.');
-        return;
-    }
-
-    // Equipar el item
-    equipItem(selectedCharacterId, selectedItemId);
-    refreshInventory();
-    // Ocultar detalles del item
-    document.getElementById('item-details').classList.add('hidden');
+    // Mostrar el modal
+    showModal('sell-item-modal');
 }
 
 // Función para vender el item seleccionado
@@ -225,17 +285,13 @@ function sellSelectedItem() {
     if (itemIndex === -1) return;
 
     const item = playerData.inventory[itemIndex];
-
-    // Confirmar venta
-    if (!confirm(`¿Estás seguro de que quieres vender ${item.name} por ${item.value} oro?`)) {
-        return;
-    }
+    const itemValue = item.value || 50;
 
     // Eliminar item del inventario
     playerData.inventory.splice(itemIndex, 1);
 
     // Añadir oro al jugador
-    playerData.gold += item.value;
+    playerData.gold += itemValue;
 
     // Guardar cambios
     savePlayerData(playerData);
@@ -243,97 +299,239 @@ function sellSelectedItem() {
     // Actualizar UI
     refreshInventory();
     document.getElementById('item-details').classList.add('hidden');
+    updateGoldDisplay();
 
-    alert(`Has vendido ${item.name} por ${item.value} oro.`);
+    // Cerrar modal y mostrar mensaje de éxito
+    closeAllModals();
+    showSuccessMessage(`Has vendido ${item.name} por ${itemValue} oro.`);
 }
 
-// Función para mostrar items equipables para un slot específico
-function showEquipableItems(characterId, slot) {
-    const playerData = getPlayerData();
-    const equipableItems = playerData.inventory.filter(item =>
-        item.equipable && item.slot === slot
-    );
+// Función para mostrar el modal de equipar item
+function showEquipItemModal() {
+    const selectedItemId = localStorage.getItem('rpg_selected_item');
+    if (!selectedItemId) return;
 
-    if (equipableItems.length === 0) {
-        alert('No tienes items que puedas equipar en este slot.');
+    const playerData = getPlayerData();
+    const item = playerData.inventory.find(i => i.id === selectedItemId);
+
+    if (!item || !item.equipable) {
+        showErrorMessage('Este item no es equipable.');
         return;
     }
 
-    // Crear un menú emergente para seleccionar el item
-    const equipMenu = document.createElement('div');
-    equipMenu.className = 'equip-menu';
-    equipMenu.style.position = 'fixed';
-    equipMenu.style.top = '50%';
-    equipMenu.style.left = '50%';
-    equipMenu.style.transform = 'translate(-50%, -50%)';
-    equipMenu.style.backgroundColor = '#232323';
-    equipMenu.style.padding = '20px';
-    equipMenu.style.borderRadius = '8px';
-    equipMenu.style.zIndex = '1000';
-    equipMenu.style.maxHeight = '80vh';
-    equipMenu.style.overflowY = 'auto';
+    // Configurar el modal
+    document.getElementById('equip-item-name').textContent = item.name;
 
-    equipMenu.innerHTML = `<h3>Selecciona un item para equipar</h3>`;
+    // Generar lista de personajes
+    const characterList = document.getElementById('equip-character-list');
+    characterList.innerHTML = '';
 
-    const itemList = document.createElement('div');
-    itemList.style.display = 'grid';
-    itemList.style.gridTemplateColumns = 'repeat(auto-fill, minmax(150px, 1fr))';
-    itemList.style.gap = '10px';
-    itemList.style.marginTop = '15px';
+    if (!playerData.characters || playerData.characters.length === 0) {
+        characterList.innerHTML = '<p class="empty-list-message">No tienes personajes para equipar este item.</p>';
+        return;
+    }
 
-    equipableItems.forEach(item => {
-        const itemElement = document.createElement('div');
-        itemElement.className = 'inventory-item';
-        itemElement.style.cursor = 'pointer';
-        itemElement.style.padding = '10px';
-        itemElement.style.backgroundColor = '#333';
-        itemElement.style.borderRadius = '4px';
+    playerData.characters.forEach(character => {
+        const characterCard = document.createElement('div');
+        characterCard.className = 'character-card character-card-compact';
+        characterCard.setAttribute('data-id', character.id);
 
-        itemElement.innerHTML = `
-            <div>${item.name}</div>
-            <div class="item-level">Nivel: ${item.level || 1}</div>
-        `;
-
-        // Color según rareza
-        if (item.rarity) {
-            const rarityKey = Object.keys(ITEM_RARITIES).find(
-                key => ITEM_RARITIES[key].name === item.rarity
-            );
-            if (rarityKey) {
-                itemElement.style.borderColor = ITEM_RARITIES[rarityKey].color;
-                itemElement.style.borderWidth = '2px';
-                itemElement.style.borderStyle = 'solid';
-            }
+        // Color de clase
+        let classColor = '#3a6ea5'; // Por defecto
+        switch(character.class) {
+            case 'WARRIOR': classColor = '#e74c3c'; break;
+            case 'MAGE': classColor = '#9b59b6'; break;
+            case 'ARCHER': classColor = '#2ecc71'; break;
+            case 'HEALER': classColor = '#3498db'; break;
         }
 
-        itemElement.addEventListener('click', function() {
-            equipItem(characterId, item.id);
-            document.body.removeChild(equipMenu);
+        characterCard.innerHTML = `
+            <h4>${character.name}</h4>
+            <p>Nivel: ${character.level}</p>
+        `;
+
+        characterCard.style.borderLeft = `4px solid ${classColor}`;
+
+        // Añadir evento para equipar
+        characterCard.addEventListener('click', function() {
+            equipItem(character.id, selectedItemId);
+            closeAllModals();
+            refreshInventory();
+            document.getElementById('item-details').classList.add('hidden');
+            showSuccessMessage(`${item.name} equipado a ${character.name}.`);
         });
 
-        itemList.appendChild(itemElement);
+        characterList.appendChild(characterCard);
     });
 
-    equipMenu.appendChild(itemList);
+    // Mostrar el modal
+    showModal('equip-item-modal');
+}
 
-    // Botón para cerrar
-    const closeButton = document.createElement('button');
-    closeButton.textContent = 'Cancelar';
-    closeButton.style.marginTop = '15px';
-    closeButton.addEventListener('click', function() {
-        document.body.removeChild(equipMenu);
-    });
+// Función para mostrar el modal de regalo
+function showGiftItemModal() {
+    const selectedItemId = localStorage.getItem('rpg_selected_item');
+    if (!selectedItemId) return;
 
-    equipMenu.appendChild(closeButton);
+    const playerData = getPlayerData();
+    const item = playerData.inventory.find(i => i.id === selectedItemId);
 
-    document.body.appendChild(equipMenu);
+    if (!item) return;
+
+    // Configurar el modal
+    document.getElementById('gift-item-name').textContent = item.name;
+    document.getElementById('gift-username').value = '';
+
+    // Mostrar el modal
+    showModal('gift-item-modal');
+}
+
+// Función para regalar un item a otro jugador
+function giftSelectedItem() {
+    const selectedItemId = localStorage.getItem('rpg_selected_item');
+    if (!selectedItemId) return;
+
+    const recipientUsername = document.getElementById('gift-username').value.trim();
+
+    if (!recipientUsername) {
+        showErrorMessage('Debes introducir un nombre de usuario');
+        return;
+    }
+
+    // Verificar que el usuario existe
+    const users = JSON.parse(localStorage.getItem('rpg_users') || '[]');
+    const recipientExists = users.some(user => user.username === recipientUsername);
+
+    if (!recipientExists) {
+        showErrorMessage('El usuario no existe');
+        return;
+    }
+
+    // Verificar que no es el propio usuario
+    const currentUser = getCurrentUser();
+    if (recipientUsername === currentUser) {
+        showErrorMessage('No puedes enviarte items a ti mismo');
+        return;
+    }
+
+    const playerData = getPlayerData();
+    const itemIndex = playerData.inventory.findIndex(i => i.id === selectedItemId);
+
+    if (itemIndex === -1) return;
+
+    const item = playerData.inventory[itemIndex];
+
+    // Eliminar item del inventario del remitente
+    playerData.inventory.splice(itemIndex, 1);
+    savePlayerData(playerData);
+
+    // Añadir item al inventario del destinatario
+    const recipientData = JSON.parse(localStorage.getItem(`rpg_player_${recipientUsername}`));
+
+    if (!recipientData.inventory) {
+        recipientData.inventory = [];
+    }
+
+    recipientData.inventory.push(item);
+    localStorage.setItem(`rpg_player_${recipientUsername}`, JSON.stringify(recipientData));
+
+    // Actualizar UI
+    refreshInventory();
+    document.getElementById('item-details').classList.add('hidden');
+
+    // Cerrar modal y mostrar mensaje de éxito
+    closeAllModals();
+    showSuccessMessage(`Has enviado ${item.name} a ${recipientUsername}.`);
+}
+
+// Función para usar el item seleccionado
+function useSelectedItem() {
+    const selectedItemId = localStorage.getItem('rpg_selected_item');
+    if (!selectedItemId) return;
+
+    const playerData = getPlayerData();
+    const item = playerData.inventory.find(i => i.id === selectedItemId);
+
+    if (!item || item.type !== 'consumable') {
+        showErrorMessage('Este item no es consumible.');
+        return;
+    }
+
+    // Determinar a qué personaje aplicar el efecto
+    const selectedCharacterId = localStorage.getItem('rpg_selected_character');
+
+    if (!selectedCharacterId || !playerData.characters.some(c => c.id === selectedCharacterId)) {
+        showModal('error-modal');
+        document.getElementById('error-message').textContent = 'Selecciona un personaje primero para usar este item.';
+        return;
+    }
+
+    // Usar el item
+    if (useConsumableItem(selectedItemId, selectedCharacterId)) {
+        refreshInventory();
+        // Ocultar detalles del item
+        document.getElementById('item-details').classList.add('hidden');
+        showSuccessMessage(`Has usado ${item.name}.`);
+    }
+}
+
+// Función para usar un item consumible
+function useConsumableItem(itemId, characterId) {
+    const playerData = getPlayerData();
+    const itemIndex = playerData.inventory.findIndex(i => i.id === itemId);
+    const character = playerData.characters.find(c => c.id === characterId);
+
+    if (itemIndex === -1 || !character) return false;
+
+    const item = playerData.inventory[itemIndex];
+
+    if (item.type !== 'consumable') {
+        showErrorMessage('Este item no es consumible.');
+        return false;
+    }
+
+    // Aplicar efecto
+    if (item.effect) {
+        if (item.effect.type === 'heal') {
+            // Restaurar salud
+            character.currentHealth = Math.min(character.stats.health, (character.currentHealth || 0) + item.effect.value);
+            showSuccessMessage(`${character.name} ha recuperado ${item.effect.value} puntos de salud.`);
+        } else if (item.effect.type === 'buff') {
+            // Aplicar buff temporal
+            if (!character.buffs) character.buffs = [];
+
+            character.buffs.push({
+                stat: item.effect.stat,
+                value: item.effect.value,
+                duration: item.effect.duration
+            });
+
+            showSuccessMessage(`${character.name} ha recibido un buff de ${item.effect.value} en ${item.effect.stat} durante ${item.effect.duration} turnos.`);
+        }
+    }
+
+    // Eliminar el item del inventario
+    playerData.inventory.splice(itemIndex, 1);
+    savePlayerData(playerData);
+
+    return true;
 }
 
 // Función para añadir un item al inventario
 function addItemToInventory(item) {
     const playerData = getPlayerData();
+
+    if (!playerData.inventory) {
+        playerData.inventory = [];
+    }
+
     playerData.inventory.push(item);
     savePlayerData(playerData);
+
+    // Actualizar UI si es visible
+    if (document.getElementById('inventory-screen') && !document.getElementById('inventory-screen').classList.contains('hidden')) {
+        refreshInventory();
+    }
 }
 
 // Función para eliminar un item del inventario
@@ -344,6 +542,12 @@ function removeItemFromInventory(itemId) {
     if (itemIndex !== -1) {
         playerData.inventory.splice(itemIndex, 1);
         savePlayerData(playerData);
+
+        // Actualizar UI si es visible
+        if (document.getElementById('inventory-screen') && !document.getElementById('inventory-screen').classList.contains('hidden')) {
+            refreshInventory();
+        }
+
         return true;
     }
 

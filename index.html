@@ -50,10 +50,22 @@
         </div>
 
         <!-- Characters Screen Redesigned -->
+        <!-- Characters Screen Redesigned -->
         <div id="characters-screen" class="game-area hidden">
-            <h2>Tus Personajes</h2>
+            <h2>Gestión de Personajes</h2>
+
             <div class="character-page-container">
                 <div class="character-list-section">
+                    <div class="character-filter">
+                        <input type="text" id="character-search" placeholder="Buscar personaje...">
+                        <div class="character-filter-options">
+                            <button class="character-filter-btn active" data-filter="all">Todos</button>
+                            <button class="character-filter-btn" data-filter="WARRIOR">Guerreros</button>
+                            <button class="character-filter-btn" data-filter="MAGE">Magos</button>
+                            <button class="character-filter-btn" data-filter="ARCHER">Arqueros</button>
+                            <button class="character-filter-btn" data-filter="HEALER">Sanadores</button>
+                        </div>
+                    </div>
                     <div id="character-list"></div>
                 </div>
 
@@ -81,29 +93,178 @@
                     </div>
 
                     <div class="character-actions">
-                        <button id="level-up-button">Subir de Nivel</button>
+                        <button id="level-up-button" class="btn-primary">Subir de Nivel</button>
+                        <button id="enhance-character-button" class="btn-accent">Mejorar Personaje</button>
+                        <button id="rename-character-button" class="btn-secondary">Renombrar</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Inventory Screen -->
-        <div id="inventory-screen" class="game-area hidden">
-            <h2>Inventario</h2>
-            <div id="inventory-container"></div>
-            <div id="item-details" class="hidden">
-                <h3 id="item-name"></h3>
-                <p id="item-description"></p>
-                <div id="item-stats"></div>
-                <div id="item-actions">
-                    <button id="use-item" class="hidden">Usar</button>
-                    <button id="equip-item" class="hidden">Equipar</button>
-                    <button id="sell-item">Vender</button>
+        <!-- Modal de Equipamiento Mejorado -->
+        <div id="equipment-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Equipamiento</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <!-- El contenido se generará dinámicamente -->
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-close btn-primary">Cerrar</button>
                 </div>
             </div>
         </div>
 
-        <!-- Exploration Screen Simplificado -->
+        <!-- Modal para renombrar personaje -->
+        <div id="rename-character-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Renombrar Personaje</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Introduce un nuevo nombre para tu personaje:</p>
+                    <input type="text" id="new-character-name" placeholder="Nuevo nombre...">
+                </div>
+                <div class="modal-footer">
+                    <button id="confirm-rename" class="btn-primary">Guardar</button>
+                    <button class="modal-close btn-secondary">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para mejorar personaje -->
+        <div id="enhance-character-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Mejorar Personaje</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="character-enhance-info">
+                        <p>Selecciona qué atributo quieres mejorar:</p>
+                        <div class="enhance-attribute-selection">
+                            <div class="attribute-option" data-attribute="health">
+                                <span class="attribute-name">❤️ Salud</span>
+                                <span class="attribute-bonus">+10 puntos</span>
+                            </div>
+                            <div class="attribute-option" data-attribute="attack">
+                                <span class="attribute-name">⚔️ Ataque</span>
+                                <span class="attribute-bonus">+2 puntos</span>
+                            </div>
+                            <div class="attribute-option" data-attribute="defense">
+                                <span class="attribute-name">🛡️ Defensa</span>
+                                <span class="attribute-bonus">+2 puntos</span>
+                            </div>
+                            <div class="attribute-option" data-attribute="speed">
+                                <span class="attribute-name">⚡ Velocidad</span>
+                                <span class="attribute-bonus">+1 punto</span>
+                            </div>
+                        </div>
+                        <p class="enhancement-cost">Costo: <span id="enhancement-gold-cost">500</span> oro</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="confirm-enhance" class="btn-primary">Mejorar</button>
+                    <button class="modal-close btn-secondary">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Screen -->
+        <!-- Inventory Screen Rediseñado -->
+        <div id="inventory-screen" class="game-area hidden">
+            <h2>Inventario</h2>
+
+            <div class="inventory-categories">
+                <button class="inventory-category active" data-category="all">Todos</button>
+                <button class="inventory-category" data-category="weapon">Armas</button>
+                <button class="inventory-category" data-category="armor">Armaduras</button>
+                <button class="inventory-category" data-category="consumable">Consumibles</button>
+                <button class="inventory-category" data-category="material">Materiales</button>
+            </div>
+
+            <div class="inventory-container-wrapper">
+                <div id="inventory-container-section">
+                    <div class="inventory-search">
+                        <input type="text" id="inventory-search" placeholder="Buscar item...">
+                    </div>
+                    <div id="inventory-container"></div>
+                </div>
+
+                <div id="item-details" class="hidden">
+                    <h3 id="item-name"></h3>
+                    <p id="item-description"></p>
+                    <div id="item-stats"></div>
+                    <div id="item-actions">
+                        <button id="use-item" class="hidden">Usar</button>
+                        <button id="equip-item" class="hidden">Equipar</button>
+                        <button id="sell-item">Vender</button>
+                        <button id="gift-item" class="btn-accent">Regalar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para vender item -->
+        <div id="sell-item-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Vender Item</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que quieres vender <span id="sell-item-name-confirm"></span>?</p>
+                    <p>Recibirás <span id="sell-item-price"></span> monedas de oro.</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="confirm-sell-item" class="btn-primary">Vender</button>
+                    <button class="modal-close btn-secondary">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para seleccionar personaje y equipar -->
+        <div id="equip-item-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Equipar Item</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Selecciona el personaje al que equipar <span id="equip-item-name"></span>:</p>
+                    <div id="equip-character-list" class="character-select-grid">
+                        <!-- Lista generada dinámicamente -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-close btn-secondary">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para regalar item -->
+        <div id="gift-item-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Regalar Item</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Selecciona quién recibirá <span id="gift-item-name"></span>:</p>
+                    <input type="text" id="gift-username" placeholder="Nombre de usuario...">
+                    <p class="gift-note">Nota: El jugador debe existir para poder enviarle este regalo.</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="confirm-gift" class="btn-primary">Enviar Regalo</button>
+                    <button class="modal-close btn-secondary">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exploration Screen Rediseñado -->
         <div id="exploration-screen" class="game-area hidden">
             <h2>Exploración</h2>
             <div id="exploration-container">
@@ -124,45 +285,183 @@
 
                 <div id="exploration-result" class="hidden">
                     <h3>Resultados de la Exploración</h3>
-                    <div id="combat-log"></div>
-                    <div id="rewards"></div>
+
+                    <div class="exploration-progress">
+                        <span class="progress-label">Progreso:</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="exploration-progress-fill"></div>
+                        </div>
+                        <span class="progress-value" id="exploration-progress-value">0/0</span>
+                    </div>
+
+                    <div class="combat-results-container">
+                        <div class="combat-log-section">
+                            <h4>Registro de Combate</h4>
+                            <div id="combat-log"></div>
+                        </div>
+
+                        <div class="rewards-section">
+                            <h4>Recompensas</h4>
+                            <div id="rewards"></div>
+                        </div>
+                    </div>
+
                     <button id="finish-exploration" class="btn-primary">Volver a Explorar</button>
                 </div>
             </div>
         </div>
 
+        <!-- Modal de Batalla -->
+        <div id="battle-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>¡Batalla en progreso!</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="battle-interface">
+                        <div class="combatants">
+                            <div class="player-combatant">
+                                <h4 id="battle-player-name"></h4>
+                                <div class="health-bar">
+                                    <div class="health-fill" id="player-health-fill"></div>
+                                </div>
+                                <span id="player-health-value"></span>
+                            </div>
+
+                            <div class="versus">VS</div>
+
+                            <div class="enemy-combatant">
+                                <h4 id="battle-enemy-name"></h4>
+                                <div class="health-bar">
+                                    <div class="health-fill" id="enemy-health-fill"></div>
+                                </div>
+                                <span id="enemy-health-value"></span>
+                            </div>
+                        </div>
+
+                        <div class="battle-log" id="battle-log"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-close btn-primary">Cerrar</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Market Screen -->
+        <!-- Market Screen Rediseñado -->
         <div id="market-screen" class="game-area hidden">
             <h2>Mercado de Jugadores</h2>
+
             <div id="market-tabs">
                 <button class="market-tab active" data-tab="browse">Explorar</button>
                 <button class="market-tab" data-tab="my-listings">Mis Ventas</button>
             </div>
-            <div id="market-search">
-                <input type="text" id="market-search-input" placeholder="Buscar items...">
-                <select id="market-category">
-                    <option value="all">Todas las categorías</option>
-                    <option value="weapon">Armas</option>
-                    <option value="armor">Armaduras</option>
-                    <option value="consumable">Consumibles</option>
-                </select>
-                <button id="search-market">Buscar</button>
+
+            <div class="market-container">
+                <div class="market-listings-section">
+                    <div id="market-search">
+                        <input type="text" id="market-search-input" placeholder="Buscar items...">
+                        <select id="market-category">
+                            <option value="all">Todas las categorías</option>
+                            <option value="weapon">Armas</option>
+                            <option value="armor">Armaduras</option>
+                            <option value="consumable">Consumibles</option>
+                            <option value="material">Materiales</option>
+                        </select>
+                        <select id="market-sort">
+                            <option value="recent">Más recientes</option>
+                            <option value="price-asc">Precio: Menor a Mayor</option>
+                            <option value="price-desc">Precio: Mayor a Menor</option>
+                            <option value="level-asc">Nivel: Menor a Mayor</option>
+                            <option value="level-desc">Nivel: Mayor a Menor</option>
+                        </select>
+                        <button id="search-market" class="btn-primary">Buscar</button>
+                    </div>
+
+                    <div class="market-listings-container">
+                        <div id="market-listings"></div>
+                    </div>
+                </div>
+
+                <div id="market-item-details" class="hidden">
+                    <h3 id="market-item-name"></h3>
+                    <p id="market-item-description"></p>
+                    <div id="market-item-stats"></div>
+                    <p id="market-item-price"></p>
+                    <p id="market-item-seller"></p>
+                    <div class="market-item-actions">
+                        <button id="buy-market-item" class="btn-primary">Comprar</button>
+                        <button id="offer-market-item" class="btn-accent">Hacer Oferta</button>
+                    </div>
+                </div>
             </div>
-            <div id="market-listings"></div>
-            <div id="market-item-details" class="hidden">
-                <h3 id="market-item-name"></h3>
-                <p id="market-item-description"></p>
-                <div id="market-item-stats"></div>
-                <p id="market-item-price"></p>
-                <button id="buy-market-item">Comprar</button>
-            </div>
+
             <div id="sell-interface" class="hidden">
                 <h3>Vender Item</h3>
+                <div class="inventory-categories">
+                    <button class="inventory-category active" data-category="all">Todos</button>
+                    <button class="inventory-category" data-category="weapon">Armas</button>
+                    <button class="inventory-category" data-category="armor">Armaduras</button>
+                    <button class="inventory-category" data-category="consumable">Consumibles</button>
+                    <button class="inventory-category" data-category="material">Materiales</button>
+                </div>
                 <div id="sell-inventory"></div>
                 <div id="sell-form" class="hidden">
                     <p id="sell-item-name"></p>
-                    <input type="number" id="sell-price" placeholder="Precio">
-                    <button id="confirm-sell">Poner a la Venta</button>
+                    <div class="sell-form-fields">
+                        <div class="form-group">
+                            <label for="sell-price">Precio:</label>
+                            <input type="number" id="sell-price" placeholder="Precio" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="sell-duration">Duración:</label>
+                            <select id="sell-duration">
+                                <option value="1">1 día</option>
+                                <option value="3" selected>3 días</option>
+                                <option value="7">7 días</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button id="confirm-sell" class="btn-primary">Poner a la Venta</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de confirmación de compra -->
+        <div id="confirm-purchase-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Confirmar Compra</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que quieres comprar <span id="confirm-item-name"></span> por <span id="confirm-item-price"></span> oro?</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="confirm-purchase" class="btn-primary">Confirmar</button>
+                    <button class="modal-close btn-secondary">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para hacer oferta -->
+        <div id="make-offer-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Hacer Oferta</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Cuánto quieres ofrecer por <span id="offer-item-name"></span>?</p>
+                    <p>Precio actual: <span id="offer-current-price"></span> oro</p>
+                    <input type="number" id="offer-price" placeholder="Tu oferta..." min="1">
+                    <p class="offer-note">Nota: La oferta será enviada al vendedor, quien decidirá si la acepta.</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="confirm-offer" class="btn-primary">Enviar Oferta</button>
+                    <button class="modal-close btn-secondary">Cancelar</button>
                 </div>
             </div>
         </div>
@@ -234,22 +533,6 @@
         </div>
         <div class="modal-footer">
             <button class="modal-close btn-primary">Aceptar</button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de Equipamiento -->
-<div id="equipment-modal" class="modal-overlay hidden">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Equipamiento</h3>
-            <button class="modal-close">&times;</button>
-        </div>
-        <div class="modal-body">
-            <!-- El contenido se generará dinámicamente -->
-        </div>
-        <div class="modal-footer">
-            <button class="modal-close btn-primary">Cerrar</button>
         </div>
     </div>
 </div>

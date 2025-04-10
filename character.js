@@ -1,4 +1,4 @@
-// Character.js - Clases y funciones para los personajes
+// Character.js - Clases y funciones para los personajes - Versión mejorada
 
 // Constantes de clases de personajes
 const CHARACTER_CLASSES = {
@@ -77,6 +77,8 @@ const CHARACTER_ROLES = {
 
 // Inicialización del módulo de personajes
 function initCharacters() {
+    console.log("Inicializando módulo de personajes...");
+
     // Event listener para la selección de personajes
     document.getElementById('character-list').addEventListener('click', function(e) {
         const characterCard = e.target.closest('.character-card');
@@ -88,6 +90,41 @@ function initCharacters() {
 
     // Event listener para subir de nivel
     document.getElementById('level-up-button').addEventListener('click', levelUpCharacter);
+
+    // Event listener para el botón de mejorar personaje
+    document.getElementById('enhance-character-button').addEventListener('click', showEnhanceCharacterModal);
+
+    // Event listener para confirmar mejora de personaje
+    document.getElementById('confirm-enhance').addEventListener('click', enhanceCharacter);
+
+    // Event listener para el botón de renombrar personaje
+    document.getElementById('rename-character-button').addEventListener('click', showRenameCharacterModal);
+
+    // Event listener para confirmar renombrar personaje
+    document.getElementById('confirm-rename').addEventListener('click', renameCharacter);
+
+    // Event listeners para filtros de personajes
+    document.querySelectorAll('.character-filter-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            // Quitar la clase active de todos los botones
+            document.querySelectorAll('.character-filter-btn').forEach(btn => btn.classList.remove('active'));
+
+            // Añadir la clase active al botón clicado
+            this.classList.add('active');
+
+            // Filtrar los personajes
+            const filter = this.getAttribute('data-filter');
+            filterCharacters(filter);
+        });
+    });
+
+    // Event listener para búsqueda de personajes
+    document.getElementById('character-search').addEventListener('input', function() {
+        const searchTerm = this.value.trim().toLowerCase();
+        searchCharacters(searchTerm);
+    });
+
+    console.log("Módulo de personajes inicializado correctamente");
 }
 
 // Función para cargar los personajes del jugador
@@ -115,6 +152,7 @@ function refreshCharacterList() {
         const characterCard = document.createElement('div');
         characterCard.className = 'character-card';
         characterCard.setAttribute('data-id', character.id);
+        characterCard.setAttribute('data-class', character.class);
 
         // Color de clase
         let classColor = '#3a6ea5'; // Por defecto
@@ -125,11 +163,22 @@ function refreshCharacterList() {
             case 'HEALER': classColor = '#3498db'; break;
         }
 
+        // Calcular experiencia y nivel
+        const currentExp = character.experience;
+        const maxExp = character.level * 100;
+        const expPercentage = (currentExp / maxExp) * 100;
+
         characterCard.innerHTML = `
             <h3>${character.name}</h3>
             <p>Clase: ${CHARACTER_CLASSES[character.class].name}</p>
             <p>Nivel: ${character.level}</p>
             <p>Salud: ${character.stats.health}</p>
+            <div class="character-xp-mini">
+                <div class="xp-bar-mini">
+                    <div class="xp-progress-mini" style="width: ${expPercentage}%"></div>
+                </div>
+                <span class="xp-text-mini">${currentExp}/${maxExp} XP</span>
+            </div>
         `;
 
         // Aplicar estilo especial para la clase
@@ -139,6 +188,42 @@ function refreshCharacterList() {
     });
 
     console.log(`Lista de personajes actualizada con ${playerData.characters.length} personajes.`);
+}
+
+// Función para filtrar personajes
+function filterCharacters(filter) {
+    console.log(`Filtrando personajes por: ${filter}`);
+
+    const characterCards = document.querySelectorAll('.character-card');
+
+    characterCards.forEach(card => {
+        if (filter === 'all') {
+            card.style.display = '';
+        } else {
+            const characterClass = card.getAttribute('data-class');
+            if (characterClass === filter) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        }
+    });
+}
+
+// Función para buscar personajes
+function searchCharacters(searchTerm) {
+    console.log(`Buscando personajes: ${searchTerm}`);
+
+    const characterCards = document.querySelectorAll('.character-card');
+
+    characterCards.forEach(card => {
+        const characterName = card.querySelector('h3').textContent.toLowerCase();
+        if (characterName.includes(searchTerm)) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
 }
 
 // Función para crear un nuevo personaje
@@ -166,7 +251,10 @@ function createCharacter(name, characterClass, role) {
         level: 1,
         experience: 0,
         stats: { ...baseStats },
-        equipment: {}
+        equipment: {},
+        customization: {
+            color: "#" + Math.floor(Math.random()*16777215).toString(16) // Color aleatorio
+        }
     };
 
     // Añadir a la lista de personajes
@@ -196,6 +284,153 @@ function createCharacter(name, characterClass, role) {
     }
 
     return newCharacter;
+}
+
+// Función para mostrar el modal de mejora de personaje
+function showEnhanceCharacterModal() {
+    const selectedCharacterId = localStorage.getItem('rpg_selected_character');
+    if (!selectedCharacterId) {
+        showErrorMessage('Debes seleccionar un personaje primero');
+        return;
+    }
+
+    const playerData = getPlayerData();
+    const character = playerData.characters.find(c => c.id === selectedCharacterId);
+
+    if (!character) return;
+
+    // Configurar el modal de mejora
+    document.getElementById('enhancement-gold-cost').textContent = 500; // Costo base
+
+    // Añadir event listeners a las opciones de atributos
+    document.querySelectorAll('.attribute-option').forEach(option => {
+        option.addEventListener('click', function() {
+            // Quitar selección previa
+            document.querySelectorAll('.attribute-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+
+            // Seleccionar este atributo
+            this.classList.add('selected');
+        });
+    });
+
+    // Mostrar el modal
+    showModal('enhance-character-modal');
+}
+
+// Función para mejorar un personaje
+function enhanceCharacter() {
+    const selectedCharacterId = localStorage.getItem('rpg_selected_character');
+    if (!selectedCharacterId) return;
+
+    const selectedAttribute = document.querySelector('.attribute-option.selected');
+    if (!selectedAttribute) {
+        showErrorMessage('Debes seleccionar un atributo para mejorar');
+        return;
+    }
+
+    const attributeToEnhance = selectedAttribute.getAttribute('data-attribute');
+    const enhancementCost = parseInt(document.getElementById('enhancement-gold-cost').textContent);
+
+    const playerData = getPlayerData();
+
+    // Verificar si tiene suficiente oro
+    if (playerData.gold < enhancementCost) {
+        showErrorMessage(`No tienes suficiente oro. Necesitas ${enhancementCost} oro.`);
+        return;
+    }
+
+    const character = playerData.characters.find(c => c.id === selectedCharacterId);
+    if (!character) return;
+
+    // Aplicar la mejora
+    switch(attributeToEnhance) {
+        case 'health':
+            character.stats.health += 10;
+            break;
+        case 'attack':
+            character.stats.attack += 2;
+            break;
+        case 'defense':
+            character.stats.defense += 2;
+            break;
+        case 'speed':
+            character.stats.speed += 1;
+            break;
+    }
+
+    // Restar el oro
+    playerData.gold -= enhancementCost;
+
+    // Guardar cambios
+    savePlayerData(playerData);
+
+    // Actualizar UI
+    updateGoldDisplay();
+    selectCharacter(selectedCharacterId);
+
+    // Cerrar modal y mostrar mensaje de éxito
+    closeAllModals();
+    showSuccessMessage(`¡${character.name} ha mejorado su ${getStatName(attributeToEnhance)}!`);
+}
+
+// Función para mostrar el modal de renombrar personaje
+function showRenameCharacterModal() {
+    const selectedCharacterId = localStorage.getItem('rpg_selected_character');
+    if (!selectedCharacterId) {
+        showErrorMessage('Debes seleccionar un personaje primero');
+        return;
+    }
+
+    const playerData = getPlayerData();
+    const character = playerData.characters.find(c => c.id === selectedCharacterId);
+
+    if (!character) return;
+
+    // Configurar el modal
+    document.getElementById('new-character-name').value = character.name;
+
+    // Mostrar el modal
+    showModal('rename-character-modal');
+}
+
+// Función para renombrar un personaje
+function renameCharacter() {
+    const selectedCharacterId = localStorage.getItem('rpg_selected_character');
+    if (!selectedCharacterId) return;
+
+    const newName = document.getElementById('new-character-name').value.trim();
+
+    if (!newName) {
+        showErrorMessage('Debes introducir un nombre');
+        return;
+    }
+
+    if (newName.length < 3) {
+        showErrorMessage('El nombre debe tener al menos 3 caracteres');
+        return;
+    }
+
+    const playerData = getPlayerData();
+    const character = playerData.characters.find(c => c.id === selectedCharacterId);
+
+    if (!character) return;
+
+    // Cambiar el nombre
+    const oldName = character.name;
+    character.name = newName;
+
+    // Guardar cambios
+    savePlayerData(playerData);
+
+    // Actualizar UI
+    refreshCharacterList();
+    selectCharacter(selectedCharacterId);
+
+    // Cerrar modal y mostrar mensaje de éxito
+    closeAllModals();
+    showSuccessMessage(`¡${oldName} ahora se llama ${newName}!`);
 }
 
 // Función para subir de nivel a un personaje
@@ -373,6 +608,8 @@ function selectCharacter(characterId) {
         if (character.experience >= expNeeded) {
             levelUpButton.removeAttribute('disabled');
             levelUpButton.classList.remove('btn-disabled');
+            // Actualizar texto del botón
+            levelUpButton.textContent = `Subir de Nivel`;
         } else {
             levelUpButton.setAttribute('disabled', 'true');
             levelUpButton.classList.add('btn-disabled');

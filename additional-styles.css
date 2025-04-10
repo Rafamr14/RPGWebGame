@@ -1,0 +1,438 @@
+/* Estilos adicionales para las nuevas funcionalidades */
+
+/* Tema claro */
+body[data-theme="light"] {
+    --color-background: #f0f2f5;
+    --color-surface: #ffffff;
+    --color-surface-light: #f5f7fa;
+    --color-surface-dark: #e9ecf1;
+    --color-border: #d1d9e6;
+    --color-text: #333333;
+    --color-text-muted: #6c757d;
+    --color-text-title: #1a1c26;
+}
+
+/* Botón de cambio de tema */
+.theme-toggle-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.3rem;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    box-shadow: none;
+}
+
+.theme-toggle-btn:hover {
+    background-color: var(--color-surface-light);
+    transform: none;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Animaciones de tarjetas y botones */
+.hover-effect {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.button-click {
+    transform: scale(0.95);
+    opacity: 0.9;
+}
+
+/* Estilos para tooltips */
+.item-tooltip {
+    position: absolute;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--card-border-radius);
+    padding: 1rem;
+    max-width: 300px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.item-tooltip.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.tooltip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-primary);
+}
+
+.tooltip-header h4 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.tooltip-type {
+    font-size: 0.8rem;
+    background-color: var(--color-surface-dark);
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    color: var(--color-text-muted);
+}
+
+.tooltip-description {
+    font-style: italic;
+    color: var(--color-text-muted);
+    margin-bottom: 0.8rem;
+    font-size: 0.9rem;
+    border-left: 2px solid var(--color-border);
+    padding-left: 0.5rem;
+}
+
+.tooltip-stats {
+    background-color: var(--color-surface-dark);
+    padding: 0.6rem;
+    border-radius: var(--border-radius);
+    margin: 0.5rem 0;
+}
+
+.tooltip-stats p {
+    margin: 0.2rem 0;
+    font-size: 0.9rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.tooltip-level, .tooltip-value {
+    font-size: 0.9rem;
+    margin: 0.3rem 0;
+}
+
+.tooltip-value {
+    color: var(--color-gold);
+    font-weight: 600;
+}
+
+/* Mejoras para el módulo de exploración */
+.character-xp-mini {
+    margin-top: 0.5rem;
+    width: 100%;
+}
+
+.xp-bar-mini {
+    height: 5px;
+    background-color: var(--color-surface-dark);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.xp-progress-mini {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-exp), #6699ff);
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+.xp-text-mini {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    display: block;
+    text-align: center;
+    margin-top: 0.2rem;
+}
+
+/* Estilos para los mensajes de combate */
+.combat-encounter {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: var(--color-surface-dark);
+    border-radius: var(--card-border-radius);
+    border-left: 4px solid var(--color-primary);
+    animation: fadeIn 0.4s ease;
+}
+
+.combat-encounter > p:first-child {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-title);
+}
+
+.combat-attack {
+    background-color: var(--color-combat-attack);
+    border-left: 3px solid var(--color-attack);
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 0.5rem;
+    border-radius: var(--border-radius);
+    animation: fadeIn 0.3s ease;
+}
+
+.combat-damage {
+    background-color: var(--color-combat-damage);
+    border-left: 3px solid var(--color-health);
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 0.5rem;
+    border-radius: var(--border-radius);
+    animation: fadeIn 0.3s ease;
+}
+
+.combat-victory {
+    background-color: var(--color-combat-victory);
+    border-left: 3px solid var(--color-success);
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 0.5rem;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    animation: fadeIn 0.3s ease;
+}
+
+.combat-defeat {
+    background-color: var(--color-combat-defeat);
+    border-left: 3px solid var(--color-error);
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 0.5rem;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    animation: fadeIn 0.3s ease;
+}
+
+.combat-reward {
+    background-color: var(--color-combat-reward);
+    border-left: 3px solid var(--color-gold);
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 0.5rem;
+    border-radius: var(--border-radius);
+    animation: fadeIn 0.3s ease;
+}
+
+/* Batalla modal */
+.battle-interface {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.combatants {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.player-combatant, .enemy-combatant {
+    width: 45%;
+    text-align: center;
+}
+
+.versus {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--color-secondary);
+}
+
+.health-bar {
+    height: 10px;
+    background-color: var(--color-surface-dark);
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 0.5rem 0;
+    border: 1px solid var(--color-border);
+}
+
+.health-fill {
+    height: 100%;
+    background-color: var(--color-health);
+    transition: width 0.5s ease;
+}
+
+.player-combatant .health-fill {
+    background-color: var(--color-primary);
+}
+
+.enemy-combatant .health-fill {
+    background-color: var(--color-secondary);
+}
+
+.battle-log {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 1rem;
+    background-color: var(--color-surface-dark);
+    border-radius: var(--card-border-radius);
+    border: 1px solid var(--color-border);
+}
+
+.player-attack {
+    color: var(--color-primary);
+    border-left: 3px solid var(--color-primary);
+    padding-left: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.enemy-attack {
+    color: var(--color-secondary);
+    border-left: 3px solid var(--color-secondary);
+    padding-left: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.player-victory, .enemy-victory {
+    font-weight: bold;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    border-radius: var(--border-radius);
+    text-align: center;
+}
+
+.player-victory {
+    background-color: var(--color-combat-victory);
+    color: var(--color-success);
+}
+
+.enemy-victory {
+    background-color: var(--color-combat-defeat);
+    color: var(--color-error);
+}
+
+.reward-message {
+    color: var(--color-gold);
+    border-left: 3px solid var(--color-gold);
+    padding-left: 0.5rem;
+    margin: 0.5rem 0;
+    font-weight: 500;
+}
+
+/* Componentes responsive adicionales */
+.mobile-menu-btn {
+    display: none;
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 100;
+    background-color: var(--color-primary);
+    color: white;
+    padding: 0.6rem 1rem;
+    border-radius: var(--border-radius);
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+body.mobile-device .mobile-menu-btn {
+    display: block;
+}
+
+body.mobile-device #nav-menu {
+    display: none;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--color-surface);
+    padding: 1rem;
+    z-index: 90;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+body.mobile-device #nav-menu.mobile-menu-expanded {
+    display: flex;
+}
+
+body.mobile-device .character-page-container,
+body.mobile-device .inventory-container-wrapper,
+body.mobile-device .market-container,
+body.mobile-device .combat-results-container,
+body.mobile-device .exploration-header {
+    grid-template-columns: 1fr;
+}
+
+body.mobile-device #character-details,
+body.mobile-device #item-details,
+body.mobile-device #market-item-details,
+body.mobile-device #shop-item-details {
+    position: static;
+    margin-top: 1.5rem;
+}
+
+/* Estilo para mensajes de lista vacía */
+.empty-list-message {
+    text-align: center;
+    color: var(--color-text-muted);
+    padding: 2rem 1rem;
+    background-color: var(--color-surface-dark);
+    border-radius: var(--card-border-radius);
+    margin: 1rem 0;
+    border: 1px dashed var(--color-border);
+}
+
+/* Mejoras para las zonas */
+.zone-description {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.8rem;
+    font-style: italic;
+    max-height: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+/* Animaciones adicionales */
+@keyframes glow {
+    0% { box-shadow: 0 0 5px rgba(58, 110, 165, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(58, 110, 165, 0.8); }
+    100% { box-shadow: 0 0 5px rgba(58, 110, 165, 0.5); }
+}
+
+.important-item {
+    animation: glow 2s infinite;
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+}
+
+.item-error {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* Estilo para items según su rareza */
+.item-common { border-color: var(--color-common) !important; }
+.item-uncommon { border-color: var(--color-uncommon) !important; }
+.item-rare { border-color: var(--color-rare) !important; }
+.item-epic { border-color: var(--color-epic) !important; }
+.item-legendary { border-color: var(--color-legendary) !important; }
+
+/* Cambios de color para diferentes temas de clases */
+.warrior-theme {
+    --class-color: #e74c3c;
+}
+
+.mage-theme {
+    --class-color: #9b59b6;
+}
+
+.archer-theme {
+    --class-color: #2ecc71;
+}
+
+.healer-theme {
+    --class-color: #3498db;
+}
