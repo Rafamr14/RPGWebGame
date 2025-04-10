@@ -1,7 +1,11 @@
-// Main.js - Script principal que inicializa el juego
+// Main.js - Script principal que inicializa el juego - Versión mejorada
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log("Inicializando juego...");
+
+    // Asegurar que la pantalla de juego está oculta inicialmente
+    document.getElementById('game-screen').classList.add('hidden');
+    document.getElementById('auth-screen').classList.remove('hidden');
 
     // Inicializar módulos
     try {
@@ -75,9 +79,6 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error("Error al inicializar UI:", e);
     }
 
-    // Comprobar si hay una sesión activa
-    checkSession();
-
     // Configurar eventos para el cambio de pestañas
     setupTabEvents();
 
@@ -88,19 +89,27 @@ document.addEventListener('DOMContentLoaded', function() {
 function setupTabEvents() {
     console.log("Configurando eventos de navegación...");
 
+    // Verificar si el usuario está autenticado
+    if (!getCurrentUser()) {
+        console.log("No hay usuario autenticado, mostrando pantalla de login");
+        document.getElementById('auth-screen').classList.remove('hidden');
+        document.getElementById('game-screen').classList.add('hidden');
+        return;
+    }
+
     // Añadir un evento personalizado para cuando se muestre un área
     document.querySelectorAll('.nav-button').forEach(button => {
         button.addEventListener('click', function() {
             const screenId = this.getAttribute('data-screen');
-            const screenElement = document.getElementById(screenId);
 
-            if (screenElement) {
-                // Disparar un evento personalizado para que los módulos puedan actualizarse
-                const event = new CustomEvent('screenShown', { detail: { screenId: screenId } });
-                screenElement.dispatchEvent(event);
-
-                console.log(`Pantalla mostrada: ${screenId}`);
+            // Verificar si hay sesión activa antes de cambiar pantallas
+            if (!getCurrentUser()) {
+                showErrorMessage('Debes iniciar sesión para acceder al juego');
+                return;
             }
+
+            // Mostrar la pantalla correspondiente usando la función de auth.js
+            showScreen(screenId);
         });
     });
 
@@ -110,7 +119,9 @@ function setupTabEvents() {
         explorationScreen.addEventListener('screenShown', function() {
             // Cargar zonas cuando se muestra la pantalla de exploración
             console.log("Evento screenShown: exploration-screen");
-            loadZones();
+            if (typeof loadZones === 'function') {
+                loadZones();
+            }
         });
     }
 
@@ -119,152 +130,67 @@ function setupTabEvents() {
         charactersScreen.addEventListener('screenShown', function() {
             // Actualizar lista de personajes cuando se muestra la pantalla de personajes
             console.log("Evento screenShown: characters-screen");
-            refreshCharacterList();
+            if (typeof refreshCharacterList === 'function') {
+                refreshCharacterList();
+            }
         });
     }
 
-    console.log("Eventos de navegación configurados");
-}
-
-// Función para mostrar la pantalla principal del juego después del login
-function showGameScreen(username) {
-    console.log(`Mostrando pantalla principal para usuario: ${username}`);
-
-    document.getElementById('auth-screen').classList.add('hidden');
-    document.getElementById('game-screen').classList.remove('hidden');
-    document.getElementById('player-name').textContent = username;
-
-    // Cargar datos del jugador
-    loadPlayerData();
-
-    // Mostrar la pantalla de personajes por defecto
-    showScreen('characters-screen');
-
-    // Comprobar si es la primera vez que el jugador entra
-    const playerData = getPlayerData();
-    if (playerData.firstTime) {
-        // Modificación: en lugar de mostrar el modal directamente, añadir un timeout
-        setTimeout(() => {
-            // Mostrar modal de bienvenida
-            if (document.getElementById('success-message') && typeof showModal === 'function') {
-                document.getElementById('success-message').textContent = '¡Bienvenido al juego! Para comenzar, debes comprar un personaje en la tienda. Tienes 2000 monedas de oro para iniciar.';
-                showModal('success-modal');
-
-                console.log("Modal de bienvenida mostrado");
-            } else {
-                // Fallback a alerta si el modal no está disponible
-                alert('¡Bienvenido al juego! Para comenzar, debes comprar un personaje en la tienda.');
+    const shopScreen = document.getElementById('shop-screen');
+    if (shopScreen) {
+        shopScreen.addEventListener('screenShown', function() {
+            // Cargar la tienda cuando se muestra la pantalla
+            console.log("Evento screenShown: shop-screen");
+            if (typeof loadShop === 'function') {
+                loadShop();
             }
+        });
+    }
 
-            // Ir a la tienda
-            showScreen('shop-screen');
+    const marketScreen = document.getElementById('market-screen');
+    if (marketScreen) {
+        marketScreen.addEventListener('screenShown', function() {
+            // Cargar listings del mercado cuando se muestra la pantalla
+            console.log("Evento screenShown: market-screen");
+            if (typeof loadMarketListings === 'function') {
+                loadMarketListings();
+            }
+        });
+    }
 
-            // Marcar que ya no es la primera vez
-            playerData.firstTime = false;
-            savePlayerData(playerData);
-
-            console.log("Primera vez completada");
-        }, 500); // Retraso de 500ms para asegurar que la UI esté lista
+    const inventoryScreen = document.getElementById('inventory-screen');
+    if (inventoryScreen) {
+        inventoryScreen.addEventListener('screenShown', function() {
+            // Actualizar inventario cuando se muestra la pantalla
+            console.log("Evento screenShown: inventory-screen");
+            if (typeof refreshInventory === 'function') {
+                refreshInventory();
+            }
+        });
     }
 }
 
-// Función para cargar los datos del jugador
-function loadPlayerData() {
-    console.log("Cargando datos del jugador...");
-
-    const playerData = getPlayerData();
-
-    // Mostrar nivel de cuenta, energía y oro
-    document.getElementById('account-level').textContent = `Nivel: ${playerData.level}`;
-    document.getElementById('stamina').textContent = `Energía: ${playerData.stamina}/${playerData.maxStamina}`;
-
-    // Añadir visualización del oro en la interfaz
-    if (!document.getElementById('player-gold')) {
-        const goldElement = document.createElement('span');
-        goldElement.id = 'player-gold';
-        document.getElementById('account-info').appendChild(goldElement);
-    }
-    document.getElementById('player-gold').textContent = `Oro: ${playerData.gold}`;
-
-    // Cargar personajes del jugador
-    try {
-        loadCharacters();
-    } catch (e) {
-        console.error("Error al cargar personajes:", e);
-    }
-
-    // Cargar inventario del jugador
-    try {
-        if (typeof loadInventory === 'function') {
-            loadInventory();
-        }
-    } catch (e) {
-        console.error("Error al cargar inventario:", e);
-    }
-
-    console.log("Datos del jugador cargados");
+// Función para manejar el caso cuando alguna función no está disponible
+function handleMissingFunction(functionName) {
+    console.warn(`Función ${functionName} no disponible`);
+    // No hacer nada si la función no está disponible
 }
 
-// Actualizar la visualización del oro
-function updateGoldDisplay() {
-    const playerData = getPlayerData();
-    if (document.getElementById('player-gold')) {
-        document.getElementById('player-gold').textContent = `Oro: ${playerData.gold}`;
-        console.log("Oro actualizado:", playerData.gold);
-    }
-}
-
-// Función para manejar la desconexión
-function logout() {
-    console.log("Cerrando sesión...");
-
-    clearSession();
-    document.getElementById('game-screen').classList.add('hidden');
-    document.getElementById('auth-screen').classList.remove('hidden');
-
-    console.log("Sesión cerrada");
-}
-
-// Event listener para el botón de logout
-document.getElementById('logout-button').addEventListener('click', logout);
-
-// Función para redirigir a una pantalla específica
-function showScreen(screenId) {
-    console.log(`Mostrando pantalla: ${screenId}`);
-
-    // Ocultar todas las áreas de juego
-    const gameAreas = document.querySelectorAll('.game-area');
-    gameAreas.forEach(area => {
-        area.classList.add('hidden');
-    });
-
-    // Mostrar la pantalla solicitada
-    const screenElement = document.getElementById(screenId);
-    screenElement.classList.remove('hidden');
-
-    // Disparar un evento para notificar que se mostró esta pantalla
-    const event = new CustomEvent('screenShown', { detail: { screenId: screenId } });
-    screenElement.dispatchEvent(event);
-}
-
-// Event listeners para los botones de navegación
-document.querySelectorAll('.nav-button').forEach(button => {
-    button.addEventListener('click', function() {
-        const screenId = this.getAttribute('data-screen');
-        showScreen(screenId);
-    });
-});
-
-// Función para actualizar regularmente los datos del juego (como regeneración de stamina)
+// Función para regenerar energía y otros datos periódicos
 function updateGameCycle() {
     const playerData = getPlayerData();
+    if (!playerData) return;
 
     // Regenerar stamina con el tiempo
     if (playerData.stamina < playerData.maxStamina) {
         playerData.stamina = Math.min(playerData.stamina + 1, playerData.maxStamina);
-        document.getElementById('stamina').textContent = `Energía: ${playerData.stamina}/${playerData.maxStamina}`;
-        savePlayerData(playerData);
 
+        // Actualizar UI solo si la pantalla del juego está visible
+        if (!document.getElementById('game-screen').classList.contains('hidden')) {
+            document.getElementById('stamina').textContent = `Energía: ${playerData.stamina}/${playerData.maxStamina}`;
+        }
+
+        savePlayerData(playerData);
         console.log("Energía regenerada:", playerData.stamina);
     }
 }

@@ -10,18 +10,20 @@
 <div id="game-container">
     <!-- Login/Register Screen -->
     <div id="auth-screen" class="screen">
-        <h1>Bienvenido al Juego</h1>
-        <div id="login-form">
-            <h2>Iniciar Sesión</h2>
-            <input type="text" id="login-username" placeholder="Usuario">
-            <input type="password" id="login-password" placeholder="Contraseña">
-            <button id="login-button">Entrar</button>
-        </div>
-        <div id="register-form">
-            <h2>Registrarse</h2>
-            <input type="text" id="register-username" placeholder="Usuario">
-            <input type="password" id="register-password" placeholder="Contraseña">
-            <button id="register-button">Crear Cuenta</button>
+        <h1>Reino de Aventuras</h1>
+        <div class="auth-forms-container">
+            <div id="login-form">
+                <h2>Iniciar Sesión</h2>
+                <input type="text" id="login-username" placeholder="Usuario" required>
+                <input type="password" id="login-password" placeholder="Contraseña" required>
+                <button id="login-button" class="btn-primary">Entrar al Reino</button>
+            </div>
+            <div id="register-form">
+                <h2>Registrarse</h2>
+                <input type="text" id="register-username" placeholder="Elige un usuario" required>
+                <input type="password" id="register-password" placeholder="Contraseña" required>
+                <button id="register-button" class="btn-accent">Crear Cuenta</button>
+            </div>
         </div>
     </div>
 
@@ -35,7 +37,7 @@
                 <span id="stamina">Energía: 100/100</span>
                 <span id="player-gold">Oro: 0</span>
             </div>
-            <button id="logout-button">Salir</button>
+            <button id="logout-button" class="btn-secondary">Salir</button>
         </div>
 
         <!-- Navigation Menu -->
@@ -47,18 +49,41 @@
             <button class="nav-button" data-screen="shop-screen">Tienda</button>
         </div>
 
-        <!-- Characters Screen -->
+        <!-- Characters Screen Redesigned -->
         <div id="characters-screen" class="game-area hidden">
             <h2>Tus Personajes</h2>
-            <div id="character-list"></div>
-            <div id="character-details" class="hidden">
-                <h3 id="character-name"></h3>
-                <div id="character-stats"></div>
-                <div id="character-equipment">
-                    <h4>Equipamiento</h4>
-                    <div id="equipment-slots"></div>
+            <div class="character-page-container">
+                <div class="character-list-section">
+                    <div id="character-list"></div>
                 </div>
-                <button id="level-up-button">Subir de Nivel</button>
+
+                <div id="character-details" class="character-detail-section hidden">
+                    <div class="character-header">
+                        <h3 id="character-name"></h3>
+                        <div class="character-level-bar">
+                            <div class="xp-bar">
+                                <div class="xp-progress"></div>
+                            </div>
+                            <span class="xp-text"></span>
+                        </div>
+                    </div>
+
+                    <div class="character-main-content">
+                        <div class="character-stats-section">
+                            <h4>Estadísticas</h4>
+                            <div id="character-stats" class="stats-grid"></div>
+                        </div>
+
+                        <div class="character-equipment-section">
+                            <h4>Equipamiento</h4>
+                            <div id="equipment-slots" class="equipment-grid"></div>
+                        </div>
+                    </div>
+
+                    <div class="character-actions">
+                        <button id="level-up-button">Subir de Nivel</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -78,23 +103,31 @@
             </div>
         </div>
 
-        <!-- Exploration Screen -->
+        <!-- Exploration Screen Simplificado -->
         <div id="exploration-screen" class="game-area hidden">
             <h2>Exploración</h2>
-            <div id="zone-selection">
-                <h3>Selecciona una Zona</h3>
-                <div id="zone-list"></div>
-            </div>
-            <div id="character-selection" class="hidden">
-                <h3>Selecciona un Personaje</h3>
-                <div id="exploration-character-list"></div>
-                <button id="start-exploration">Comenzar Exploración</button>
-            </div>
-            <div id="exploration-result" class="hidden">
-                <h3>Resultados de la Exploración</h3>
-                <div id="combat-log"></div>
-                <div id="rewards"></div>
-                <button id="continue-exploration">Continuar</button>
+            <div id="exploration-container">
+                <div class="exploration-header">
+                    <div class="character-selector">
+                        <h3>Selecciona un Personaje</h3>
+                        <div id="exploration-character-list" class="character-select-grid"></div>
+                    </div>
+                    <div class="zone-selector">
+                        <h3>Selecciona una Zona</h3>
+                        <div id="zone-list" class="zone-grid"></div>
+                    </div>
+                </div>
+
+                <div class="exploration-actions">
+                    <button id="start-exploration" class="btn-primary">Comenzar Exploración</button>
+                </div>
+
+                <div id="exploration-result" class="hidden">
+                    <h3>Resultados de la Exploración</h3>
+                    <div id="combat-log"></div>
+                    <div id="rewards"></div>
+                    <button id="finish-exploration" class="btn-primary">Volver a Explorar</button>
+                </div>
             </div>
         </div>
 
@@ -169,8 +202,8 @@
             <p id="confirm-message"></p>
         </div>
         <div class="modal-footer">
-            <button id="confirm-button" class="primary-button">Confirmar</button>
-            <button id="cancel-button">Cancelar</button>
+            <button id="confirm-button" class="btn-primary">Confirmar</button>
+            <button id="cancel-button" class="btn-secondary">Cancelar</button>
         </div>
     </div>
 </div>
@@ -185,7 +218,7 @@
             <p id="error-message"></p>
         </div>
         <div class="modal-footer">
-            <button class="modal-close">Aceptar</button>
+            <button class="modal-close btn-primary">Aceptar</button>
         </div>
     </div>
 </div>
@@ -200,13 +233,30 @@
             <p id="success-message"></p>
         </div>
         <div class="modal-footer">
-            <button class="modal-close">Aceptar</button>
+            <button class="modal-close btn-primary">Aceptar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Equipamiento -->
+<div id="equipment-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Equipamiento</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- El contenido se generará dinámicamente -->
+        </div>
+        <div class="modal-footer">
+            <button class="modal-close btn-primary">Cerrar</button>
         </div>
     </div>
 </div>
 
 <!-- Scripts -->
 <script src="data.js"></script>
+<script src="modal.js"></script>
 <script src="auth.js"></script>
 <script src="character.js"></script>
 <script src="items.js"></script>
